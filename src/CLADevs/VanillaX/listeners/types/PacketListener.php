@@ -25,6 +25,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
+use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\convert\TypeConverter;
 use pocketmine\network\mcpe\protocol\ActorPickRequestPacket;
@@ -49,6 +50,7 @@ use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\Position;
+use const pocketmine\BEDROCK_DATA_PATH;
 use const pocketmine\RESOURCE_PATH;
 
 class PacketListener implements Listener{
@@ -287,7 +289,7 @@ class PacketListener implements Listener{
     private function handleCraftingData(CraftingDataPacket $packet): void{
         $manager = InventoryManager::getInstance();
         $translator = ItemTranslator::getInstance();
-        $recipes = json_decode(file_get_contents(RESOURCE_PATH . "vanilla" . DIRECTORY_SEPARATOR . "recipes.json"), true);
+        $recipes = json_decode(file_get_contents(BEDROCK_DATA_PATH . "recipes.json"), true);
 
         $potionTypeRecipes = [];
         foreach($recipes["potion_type"] as $recipe){
@@ -321,11 +323,11 @@ class PacketListener implements Listener{
      * this packet is sent by player whenever they want to swim, jump, break, use elytra, etc
      */
     private function handlePlayerAction(Session $session, PlayerActionPacket $packet): void{
-        if($packet instanceof PlayerActionPacket && in_array($packet->action, [PlayerActionPacket::ACTION_START_GLIDE, PlayerActionPacket::ACTION_STOP_GLIDE])){
-            $session->setGliding($packet->action === PlayerActionPacket::ACTION_START_GLIDE);
+        if($packet instanceof PlayerActionPacket && in_array($packet->action, [PlayerAction::START_GLIDE, PlayerAction::STOP_GLIDE])){
+            $session->setGliding($packet->action === PlayerAction::START_GLIDE);
         }
-        if($packet instanceof PlayerActionPacket && in_array($packet->action, [PlayerActionPacket::ACTION_START_SWIMMING, PlayerActionPacket::ACTION_STOP_SWIMMING])){
-            $session->setSwimming($packet->action === PlayerActionPacket::ACTION_START_SWIMMING);
+        if($packet instanceof PlayerActionPacket && in_array($packet->action, [PlayerAction::START_SWIMMING, PlayerAction::STOP_SWIMMING])){
+            $session->setSwimming($packet->action === PlayerAction::START_SWIMMING);
         }
     }
 }
